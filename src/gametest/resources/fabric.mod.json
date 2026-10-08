@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "gravis_flying_hotfixes_gametest",
+  "version": "1.0.0",
+  "name": "Gravis Flying Hotfixes game tests",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-gametest": [
+      "com.gravisludio.flyinghotfixes.gametest.ArmBasinTests",
+      "com.gravisludio.flyinghotfixes.gametest.MixinAppliedTests",
+      "com.gravisludio.flyinghotfixes.gametest.RichSoilFarmlandTests",
+      "com.gravisludio.flyinghotfixes.gametest.SchematicannonChecklistTests"
+    ]
+  },
+  "depends": {
+    "gravis_flying_hotfixes": "*",
+    "fabric-gametest-api-v1": "*"
+  }
+}

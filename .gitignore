@@ -1,0 +1,24 @@
+# idea
+out
+*.ipr
+*.iws
+*.iml
+.idea
+
+# gradle
+build
+.gradle
+
+# runs
+/run
+/run-*
+
+# secrets
+secrets.properties
+.env
+
+# Python bytecode
+__pycache__/
+
+# internal handoff for Claude chats (local paths, player names): not for the public repo
+CLAUDE.md

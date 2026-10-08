@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${mod_version}",
+  "name": "${mod_name}",
+  "description": "${mod_description}",
+  "authors": [
+    "${mod_authors}"
+  ],
+  "contributors": [
+    "ZurrTum (Create Fly)"
+  ],
+  "contact": {
+    "homepage": "https://github.com/GravisLudio/gravis-flying-hotfixes",
+    "sources": "https://github.com/GravisLudio/gravis-flying-hotfixes",
+    "issues": "https://github.com/GravisLudio/gravis-flying-hotfixes/issues"
+  },
+  "license": "${mod_license}",
+  "icon": "gravis_flying_hotfixes_icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.gravisludio.flyinghotfixes.GravisFlyingHotfixes"
+    ],
+    "client": [
+      "com.gravisludio.flyinghotfixes.client.GravisFlyingHotfixesClient"
+    ]
+  },
+  "mixins": [
+    "gravis_flying_hotfixes.mixins.json",
+    {
+      "config": "gravis_flying_hotfixes.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "minecraft": ">=26.2- <26.3-",
+    "java": ">=25",
+    "fabric-api": "*",
+    "create": "*"
+  }
+}

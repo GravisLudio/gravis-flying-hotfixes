@@ -1,0 +1,14 @@
+{
+  "required": false,
+  "package": "com.gravisludio.flyinghotfixes.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "plugin": "com.gravisludio.flyinghotfixes.mixin.HotfixMixinPlugin",
+  "mixins": [
+    "ArmInteractionPointExtractMixin",
+    "ArmUpstreamPointModeMixin",
+    "SchematicannonChecklistMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 0
+  }
+}

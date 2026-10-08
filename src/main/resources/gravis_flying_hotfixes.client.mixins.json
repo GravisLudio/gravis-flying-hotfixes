@@ -1,0 +1,12 @@
+{
+  "required": false,
+  "package": "com.gravisludio.flyinghotfixes.mixin.client",
+  "compatibilityLevel": "JAVA_25",
+  "plugin": "com.gravisludio.flyinghotfixes.mixin.HotfixMixinPlugin",
+  "client": [
+    "BlueprintRendererNullRotationMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 0
+  }
+}

@@ -1,0 +1,139 @@
+plugins {
+    id 'idea'
+    id "net.fabricmc.fabric-loom" version "${loom_version}"
+}
+
+version = mod_version
+group = mod_group_id
+
+base {
+    archivesName = "gravis-flying-hotfixes"
+}
+
+sourceSets {
+    gametest {
+        compileClasspath += main.compileClasspath + main.output
+        runtimeClasspath += main.runtimeClasspath + main.output
+    }
+}
+
+loom {
+    // Un solo source set (sin splitEnvironmentSourceSets): Create Fly mezcla main y client en un
+    // jar, y los arreglos de cliente van en su propio entrypoint y su propio config de mixins.
+    mods {
+        "gravis_flying_hotfixes" {
+            sourceSet sourceSets.main
+        }
+        "gravis_flying_hotfixes_gametest" {
+            sourceSet sourceSets.gametest
+        }
+    }
+
+    // `gradlew runGametest`: servidor sin ventana que ejecuta cada @GameTest de src/gametest y sale,
+    // con el resultado en build/gametest/report.xml. Las pruebas viven en su propio source set para
+    // que ninguna acabe en el jar publicado.
+    runs {
+        gametest {
+            server()
+            name "Game Test"
+            source sourceSets.gametest
+            vmArg "-Dfabric-api.gametest"
+            vmArg "-Dfabric-api.gametest.report-file=${project.file('build/gametest/report.xml')}"
+            runDir "build/gametest"
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        name = "Fabric"
+        url = "https://maven.fabricmc.net/"
+    }
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        filter {
+            includeGroup "maven.modrinth"
+        }
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    implementation "net.fabricmc:fabric-loader:${loader_version}"
+
+    // fabric-api es un contenedor sin clases propias: se nombran los modulos que se usan.
+    // (En 26.2 no existen las configuraciones mod*; ver la nota de Create Fly abajo.)
+    implementation fabricApi.module("fabric-lifecycle-events-v1", fabric_version)
+    // Hace falta en ejecucion para el resto de la API.
+    runtimeOnly "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+
+    // Create Fly. Va con `implementation` y no `modImplementation`: en Loom 1.16 / MC 26.2 el
+    // namespace de produccion ya es mojmap, no hay remapeo y las configuraciones mod* no existen.
+    implementation "maven.modrinth:create-fly:${create_fly_version}"
+
+    // No forma parte del bundle de fabric-api: es un modulo solo de desarrollo.
+    gametestImplementation fabricApi.module("fabric-gametest-api-v1", fabric_version)
+}
+
+// Jars de otros mods para el classpath de `runGametest`, solo cuando se piden:
+//   .\gradlew.bat runGametest --offline -PwithFarmersDelight="<ruta>.jar" -PwithConnected="<ruta>.jar"
+// Farmer's Delight activa la prueba del arreglo de la tierra de cultivo rica; Connected comprueba
+// que los mismos arreglos aplicados dos veces (aqui y en Connected) no se estorban.
+['withFarmersDelight', 'withConnected'].each { prop ->
+    if (project.hasProperty(prop)) {
+        dependencies {
+            gametestRuntimeOnly files(project.property(prop))
+        }
+    }
+}
+
+processResources {
+    duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+    filteringCharset = 'UTF-8'
+
+    var replaceProperties = [
+            minecraft_version: minecraft_version,
+            loader_version   : loader_version,
+            mod_id           : mod_id,
+            mod_name         : mod_name,
+            mod_license      : mod_license,
+            mod_version      : mod_version,
+            mod_authors      : mod_authors,
+            mod_description  : mod_description,
+    ]
+    inputs.properties replaceProperties
+
+    filesMatching(['fabric.mod.json']) {
+        expand replaceProperties
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 25
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
+    withSourcesJar()
+}
+
+jar {
+    from("LICENSE") {
+        rename { "${it}_${base.archivesName.get()}" }
+    }
+}
+
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
+    }
+}
