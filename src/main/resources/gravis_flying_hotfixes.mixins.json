@@ -6,6 +6,8 @@
   "mixins": [
     "ArmInteractionPointExtractMixin",
     "ArmUpstreamPointModeMixin",
+    "FluidInventoryWrapperCapacityMixin",
+    "InventoryWrapperCapacityMixin",
     "SchematicannonChecklistMixin"
   ],
   "injectors": {

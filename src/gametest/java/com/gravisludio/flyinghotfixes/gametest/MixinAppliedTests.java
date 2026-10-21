@@ -34,6 +34,18 @@ public class MixinAppliedTests {
         helper.succeed();
     }
 
+    @GameTest
+    public void fluidCapacityFixIsApplied(GameTestHelper helper) {
+        assertWoven(helper, com.zurrtum.create.infrastructure.transfer.FluidInventoryWrapper.class, "flyinghotfixes$fixSlottedCapacity");
+        helper.succeed();
+    }
+
+    @GameTest
+    public void itemStackLimitFixIsApplied(GameTestHelper helper) {
+        assertWoven(helper, com.zurrtum.create.infrastructure.transfer.InventoryWrapper.class, "flyinghotfixes$fixSlottedStackLimit");
+        helper.succeed();
+    }
+
     /**
      * With Create: Connected (Fly Port) 1.3.3-mc26.2-4 or earlier loaded, which carries the same
      * fixes, both mods' handlers must be woven into the same classes. Needs

@@ -22,3 +22,5 @@ __pycache__/
 
 # internal handoff for Claude chats (local paths, player names): not for the public repo
 CLAUDE.md
+
+dist/

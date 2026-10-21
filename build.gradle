@@ -70,6 +70,9 @@ dependencies {
     // fabric-api es un contenedor sin clases propias: se nombran los modulos que se usan.
     // (En 26.2 no existen las configuraciones mod*; ver la nota de Create Fly abajo.)
     implementation fabricApi.module("fabric-lifecycle-events-v1", fabric_version)
+    // Solo para compilar el arreglo de capacidad de los wrappers de Create Fly (usa Storage/StorageView);
+    // en ejecucion lo trae el fabric-api completo de la linea de abajo.
+    compileOnly fabricApi.module("fabric-transfer-api-v1", fabric_version)
     // Hace falta en ejecucion para el resto de la API.
     runtimeOnly "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
 
@@ -85,7 +88,7 @@ dependencies {
 //   .\gradlew.bat runGametest --offline -PwithFarmersDelight="<ruta>.jar" -PwithConnected="<ruta>.jar"
 // Farmer's Delight activa la prueba del arreglo de la tierra de cultivo rica; Connected comprueba
 // que los mismos arreglos aplicados dos veces (aqui y en Connected) no se estorban.
-['withFarmersDelight', 'withConnected'].each { prop ->
+['withFarmersDelight', 'withConnected', 'withSteamRails'].each { prop ->
     if (project.hasProperty(prop)) {
         dependencies {
             gametestRuntimeOnly files(project.property(prop))

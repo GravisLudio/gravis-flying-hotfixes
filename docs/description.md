@@ -14,10 +14,11 @@ No blocks, no items, no recipes, no new content: install it, forget it, and the 
 | **The Schematicannon charges Farmer's Delight rich soil farmland as plain dirt**, so it turned dirt into rich soil farmland for free. It now costs rich soil. Only active if Farmer's Delight is installed. | Server |
 | **A Mechanical Arm stalls on an inventory whose first item has nowhere to go** (a basin with leftover quartz in front of finished granite). It now takes the item that is in the slot it is looking at. ([Create-Fly#370](https://github.com/ZurrTum/Create-Fly/issues/370)) | Server |
 | **Mechanical Arms in schematics saved with the original Create lose all their targets** (Create writes the mode as `TAKE`, Create Fly only reads `take`). | Server |
+| **Items from other mods that hold fluid can never be filled by a Spout.** Create Fly works out the capacity of a single-slot Fabric Transfer storage with the comparison turned around, so it always comes out as 0 and the item looks permanently full. Found with the Steam 'n' Rails paint pitchers; the same inverted comparison also made slotted item storages report a stack limit of 0. | Server and client |
 
 ## Where to install it
 
-Fixes for the client (the first two) only need the mod on the client; fixes for the server (the other four) only need it on the server, or in a single-player world. Installing it on both is fine and is what most people should do. Players on a server that does not have it still get the two client fixes.
+Fixes for the client (the first two) only need the mod on the client; fixes for the server (the next four) only need it on the server, or in a single-player world; the storage capacity fix (the last one) lives in code that runs on both sides, so it should be installed on both. Installing it on both is fine and is what most people should do. Players on a server that does not have it still get the two client fixes.
 
 ## Requirements
 

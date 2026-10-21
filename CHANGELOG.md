@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.1.0 (unreleased)
+
+### Fixed (Create Fly bugs)
+
+- **Items that hold fluid through a Fabric Transfer single-slot storage could never be filled by a
+  Spout.** Create Fly works out the capacity of a slotted storage in `FluidInventoryWrapper.init()`
+  with the comparison turned around (`if (max > capacity)` where the non-slotted branch of the same
+  class has `max < capacity`), so every such item reported a capacity of 0 and
+  `GenericItemFilling.canItemBeFilled` answered "no". Found with the paint pitchers of Steam 'n' Rails
+  (the empty pitcher reported 0 instead of 324000; with this fix the unmodified Create Fly port by
+  BumblePie fills it). Server and client.
+- **The same inverted comparison in `InventoryWrapper.init()`** made slotted Fabric Transfer *item*
+  storages report a stack limit of 0 instead of 64 (measured with a plain 9-slot container). The
+  effect in play has not been observed; the value was plainly wrong. Server and client.
+
 ## 1.0.0
 
 First release. Needs Minecraft 26.2, Fabric Loader, Fabric API, Java 25 and

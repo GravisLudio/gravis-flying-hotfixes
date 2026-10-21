@@ -4,7 +4,7 @@ Small standalone fixes for bugs in [Create Fly](https://github.com/ZurrTum/Creat
 port of Create) on Minecraft 26.2. No content of its own: no blocks, items, recipes or packets.
 
 The mod's page text (for CurseForge and Modrinth) is in [docs/description.md](docs/description.md),
-the six fixes and why they exist are in the Javadoc of each class, and the history is in
+the fixes and why they exist are in the Javadoc of each class, and the history is in
 [CHANGELOG.md](CHANGELOG.md).
 
 | # | Fix | Side | Code |
@@ -15,6 +15,8 @@ the six fixes and why they exist are in the Javadoc of each class, and the histo
 | 4 | Mechanical Arm stalled when the first item of an inventory had no target | Server | `mixin/ArmInteractionPointExtractMixin` |
 | 5 | Arms in schematics from the original Create lost their targets (uppercase modes) | Server | `mixin/ArmUpstreamPointModeMixin` |
 | 6 | South-facing crafting blueprint with a recipe crashed whoever looked at it | Client | `mixin/client/BlueprintRendererNullRotationMixin` |
+| 7 | Items holding fluid through a single-slot Fabric Transfer storage reported a capacity of 0, so a Spout never filled them (e.g. Steam 'n' Rails paint pitchers) | Both | `mixin/FluidInventoryWrapperCapacityMixin` |
+| 8 | The same inverted comparison for slotted item storages: Create Fly reported a stack limit of 0 | Both | `mixin/InventoryWrapperCapacityMixin` |
 
 ## Design rules
 
