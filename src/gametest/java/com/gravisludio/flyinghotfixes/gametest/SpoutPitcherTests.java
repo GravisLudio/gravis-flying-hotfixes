@@ -100,6 +100,44 @@ public class SpoutPitcherTests {
         });
     }
 
+    /**
+     * The same recipe with two commands and no {@code /data merge}: the Spout is placed with its water already in the
+     * block data, so nothing depends on a second command finding the same position (relative {@code ~} coordinates
+     * drift if the player moves between commands, and then {@code /data merge} says "The target block is not a block
+     * entity").
+     */
+    @GameTest(maxTicks = 400)
+    public void spoutPlacedWithItsWaterInOneCommandFillsAnEmptyPaintPitcher(GameTestHelper helper) {
+        if (!FabricLoader.getInstance().isModLoaded("railways")) {
+            helper.succeed();
+            return;
+        }
+        var server = helper.getLevel().getServer();
+        var source = server.createCommandSourceStack().withLevel(helper.getLevel());
+        BlockPos depotAbs = helper.absolutePos(DEPOT);
+        BlockPos spoutAbs = helper.absolutePos(SPOUT);
+        run(server, source, "setblock %d %d %d create:depot".formatted(depotAbs.getX(), depotAbs.getY(), depotAbs.getZ()));
+        run(server, source, "setblock %d %d %d create:spout%s".formatted(spoutAbs.getX(), spoutAbs.getY(), spoutAbs.getZ(), WATER_NBT));
+        helper.runAfterDelay(5, () -> {
+            SpoutBlockEntity spout = helper.getBlockEntity(SPOUT, SpoutBlockEntity.class);
+            FluidStack fluid = spout.tank.getPrimaryHandler().getFluid();
+            LOGGER.info("[FH-TEST] spout placed with nbt: {}", fluid);
+            if (fluid.getAmount() != 81_000)
+                throw helper.assertionException(SPOUT, Component.literal("setblock with nbt did not put 81000 of water in the spout: " + fluid));
+            Item empty = BuiltInRegistries.ITEM.getValue(Identifier.fromNamespaceAndPath("railways", "empty_paint_pitcher"));
+            Item sandy = BuiltInRegistries.ITEM.getValue(Identifier.fromNamespaceAndPath("railways", "sandy_paint_pitcher"));
+            DepotBlockEntity depot = helper.getBlockEntity(DEPOT, DepotBlockEntity.class);
+            depot.depotBehaviour.setHeldItem(new TransportedItemStack(new ItemStack(empty)));
+            helper.runAfterDelay(150, () -> {
+                ItemStack held = depot.depotBehaviour.getHeldItemStack();
+                LOGGER.info("[FH-TEST] one-command rig: depot holds {}", held);
+                if (held.getItem() != sandy)
+                    throw helper.assertionException(DEPOT, Component.literal("the pitcher was not filled; the depot holds " + held));
+                helper.succeed();
+            });
+        });
+    }
+
     private static void run(net.minecraft.server.MinecraftServer server, net.minecraft.commands.CommandSourceStack source, String command) {
         server.getCommands().performPrefixedCommand(source, command);
     }
