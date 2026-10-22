@@ -242,8 +242,14 @@ public class SpoutPitcherTests {
         var box = new net.minecraft.world.phys.AABB(helper.absolutePos(DEPOT)).inflate(4);
         var drops = helper.getLevel().getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, box)
             .stream().map(e -> describe(e.getItem())).toList();
-        LOGGER.info("[FH-TEST] {} at tick {}: depot holds [{}] | on the floor: {}", label, tick,
-            describe(depot.depotBehaviour.getHeldItemStack()), drops);
+        // The depot keeps what the spout has already processed (everything but the item left on top) in an
+        // internal 8-slot output buffer; a right-click on top of the depot hands it all back.
+        var buffer = depot.depotBehaviour.processingOutputBuffer;
+        java.util.List<String> inBuffer = new java.util.ArrayList<>();
+        for (int i = 0; i < buffer.getContainerSize(); i++)
+            if (!buffer.getItem(i).isEmpty()) inBuffer.add(describe(buffer.getItem(i)));
+        LOGGER.info("[FH-TEST] {} at tick {}: depot holds [{}] | output buffer: {} | on the floor: {}", label, tick,
+            describe(depot.depotBehaviour.getHeldItemStack()), inBuffer, drops);
     }
 
     private static String describe(ItemStack s) {
