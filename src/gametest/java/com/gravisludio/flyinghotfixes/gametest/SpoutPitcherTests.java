@@ -196,6 +196,62 @@ public class SpoutPitcherTests {
         helper.runAfterDelay(620, helper::succeed);
     }
 
+    /**
+     * Diagnostic: how many levels does a pitcher get, and does the spout keep filling the same one? One empty pitcher
+     * alone on the depot and a stack of 5 are both given endless water (topped up every 8 ticks, as a pump would);
+     * a stone floor under the depot catches whatever it lets go. Logs the FillLevel of everything it can see; always passes.
+     */
+    @GameTest(maxTicks = 1300)
+    public void spoutLevelsForOnePitcherAndForAStack(GameTestHelper helper) {
+        if (!FabricLoader.getInstance().isModLoaded("railways")) {
+            helper.succeed();
+            return;
+        }
+        Item empty = BuiltInRegistries.ITEM.getValue(Identifier.fromNamespaceAndPath("railways", "empty_paint_pitcher"));
+        helper.setBlock(DEPOT, AllBlocks.DEPOT.defaultBlockState());
+        helper.setBlock(SPOUT, AllBlocks.SPOUT.defaultBlockState());
+        for (int dx = -3; dx <= 3; dx++)
+            for (int dz = -3; dz <= 3; dz++)
+                helper.setBlock(DEPOT.offset(dx, -1, dz), net.minecraft.world.level.block.Blocks.STONE);
+        helper.runAfterDelay(5, () -> helper.getBlockEntity(DEPOT, DepotBlockEntity.class)
+            .depotBehaviour.setHeldItem(new TransportedItemStack(new ItemStack(empty, 1))));
+        for (int t = 8; t <= 1200; t += 8) {
+            helper.runAfterDelay(t, () -> {
+                SpoutBlockEntity spout = helper.getBlockEntity(SPOUT, SpoutBlockEntity.class);
+                if (spout.tank.getPrimaryHandler().getFluid().getAmount() < 81_000)
+                    spout.tank.getPrimaryHandler().setFluid(new FluidStack(Fluids.WATER, 81_000));
+            });
+        }
+        for (int t : new int[]{100, 200, 400, 700, 1000}) {
+            helper.runAfterDelay(t, () -> logLevels(helper, "ONE pitcher", t));
+        }
+        // second phase: a stack of 5 on the same depot once the single one has had its time
+        helper.runAfterDelay(1010, () -> {
+            DepotBlockEntity depot = helper.getBlockEntity(DEPOT, DepotBlockEntity.class);
+            LOGGER.info("[FH-TEST] --- phase 2: removing the single pitcher and putting a stack of 5 ---");
+            depot.depotBehaviour.setHeldItem(new TransportedItemStack(new ItemStack(empty, 5)));
+        });
+        for (int t : new int[]{1060, 1120, 1200, 1280}) {
+            helper.runAfterDelay(t, () -> logLevels(helper, "STACK of 5", t));
+        }
+        helper.runAfterDelay(1290, helper::succeed);
+    }
+
+    private static void logLevels(GameTestHelper helper, String label, int tick) {
+        DepotBlockEntity depot = helper.getBlockEntity(DEPOT, DepotBlockEntity.class);
+        var box = new net.minecraft.world.phys.AABB(helper.absolutePos(DEPOT)).inflate(4);
+        var drops = helper.getLevel().getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, box)
+            .stream().map(e -> describe(e.getItem())).toList();
+        LOGGER.info("[FH-TEST] {} at tick {}: depot holds [{}] | on the floor: {}", label, tick,
+            describe(depot.depotBehaviour.getHeldItemStack()), drops);
+    }
+
+    private static String describe(ItemStack s) {
+        var data = s.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA);
+        String level = data == null ? "no FillLevel" : "FillLevel=" + data.copyTag().getIntOr("FillLevel", -1);
+        return s.getCount() + "x " + BuiltInRegistries.ITEM.getKey(s.getItem()).getPath() + " (" + level + ")";
+    }
+
     private static void run(net.minecraft.server.MinecraftServer server, net.minecraft.commands.CommandSourceStack source, String command) {
         server.getCommands().performPrefixedCommand(source, command);
     }
