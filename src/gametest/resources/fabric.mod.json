@@ -11,7 +11,8 @@
       "com.gravisludio.flyinghotfixes.gametest.RichSoilFarmlandTests",
       "com.gravisludio.flyinghotfixes.gametest.SchematicannonChecklistTests",
       "com.gravisludio.flyinghotfixes.gametest.SlottedStorageCapacityTests",
-      "com.gravisludio.flyinghotfixes.gametest.SteamRailsPitcherTests"
+      "com.gravisludio.flyinghotfixes.gametest.SteamRailsPitcherTests",
+      "com.gravisludio.flyinghotfixes.gametest.SpoutPitcherTests"
     ]
   },
   "depends": {
