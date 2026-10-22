@@ -15,6 +15,7 @@ No blocks, no items, no recipes, no new content: install it, forget it, and the 
 | **A Mechanical Arm stalls on an inventory whose first item has nowhere to go** (a basin with leftover quartz in front of finished granite). It now takes the item that is in the slot it is looking at. ([Create-Fly#370](https://github.com/ZurrTum/Create-Fly/issues/370)) | Server |
 | **Mechanical Arms in schematics saved with the original Create lose all their targets** (Create writes the mode as `TAKE`, Create Fly only reads `take`). | Server |
 | **Items from other mods that hold fluid can never be filled by a Spout.** Create Fly works out the capacity of a single-slot Fabric Transfer storage with the comparison turned around, so it always comes out as 0 and the item looks permanently full. Found with the Steam 'n' Rails paint pitchers; the same inverted comparison also made slotted item storages report a stack limit of 0. | Server and client |
+| **A Spout ignores a stack of such items.** One empty paint pitcher on a depot is filled; five in a stack are left untouched, because the Spout asks "how much fits?" about the whole stack and Create Fly cannot split it. It now asks about one item, as it already does when it fills. | Server |
 
 ## Where to install it
 

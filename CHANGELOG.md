@@ -16,6 +16,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `GenericItemFilling.canItemBeFilled` answered "no". Found with the paint pitchers of Steam 'n' Rails
   (the empty pitcher reported 0 instead of 324000; with this fix the unmodified Create Fly port by
   BumblePie fills it). Server and client.
+- **A Spout never filled an item that sat on its depot or belt in a stack of two or more** (an empty paint
+  pitcher stacks to 64; one pitcher worked, five were ignored). `GenericItemFilling.fillItem` works on a
+  one-item copy, but `getRequiredAmountForItem`, which the Spout asks first, handed the whole stack to the item's
+  Fabric Transfer storage; Create Fly's item context cannot split a stack (`insertOverflow` returns 0), so the answer
+  was 0 and the stack passed untouched. It is now asked about one item. Glass bottles and buckets were not affected.
+  Server.
 - **The same inverted comparison in `InventoryWrapper.init()`** made slotted Fabric Transfer *item*
   storages report a stack limit of 0 instead of 64 (measured with a plain 9-slot container). The
   effect in play has not been observed; the value was plainly wrong. Server and client.

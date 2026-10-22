@@ -138,6 +138,64 @@ public class SpoutPitcherTests {
         });
     }
 
+    /**
+     * What happens when the depot holds a STACK of 5 and the spout is never short of water (it is topped up every
+     * 10 ticks, as a pump would). Diagnostic: it logs the depot content and every dropped stack and always passes;
+     * the glass bottles are the control for how a Spout treats a stack in general.
+     */
+    @GameTest(maxTicks = 700)
+    public void spoutWithAStackOfFiveGlassBottles(GameTestHelper helper) {
+        stackRig(helper, "glass bottles", new ItemStack(Items.GLASS_BOTTLE, 5), Items.POTION);
+    }
+
+    @GameTest(maxTicks = 700)
+    public void spoutWithAStackOfFiveEmptyPitchers(GameTestHelper helper) {
+        if (!FabricLoader.getInstance().isModLoaded("railways")) {
+            helper.succeed();
+            return;
+        }
+        Item empty = BuiltInRegistries.ITEM.getValue(Identifier.fromNamespaceAndPath("railways", "empty_paint_pitcher"));
+        LOGGER.info("[FH-TEST] empty pitcher max stack size = {}", new ItemStack(empty).getMaxStackSize());
+        Item sandy = BuiltInRegistries.ITEM.getValue(Identifier.fromNamespaceAndPath("railways", "sandy_paint_pitcher"));
+        LOGGER.info("[FH-TEST] sandy pitcher max stack size = {}", new ItemStack(sandy).getMaxStackSize());
+        stackRig(helper, "empty pitchers", new ItemStack(empty, 5), sandy);
+    }
+
+    /** {@code expectedFinal}: what the depot holds at the end (the glass bottles end on a potion; the pitchers must end on a sandy pitcher). */
+    private static void stackRig(GameTestHelper helper, String label, ItemStack stack, Item expectedFinal) {
+        helper.setBlock(DEPOT, AllBlocks.DEPOT.defaultBlockState());
+        helper.setBlock(SPOUT, AllBlocks.SPOUT.defaultBlockState());
+        // Everything is scheduled from here, at tick 0: the framework's timer list breaks if dozens of timers are
+        // added from inside another timer while it is being walked.
+        helper.runAfterDelay(5, () -> helper.getBlockEntity(DEPOT, DepotBlockEntity.class)
+            .depotBehaviour.setHeldItem(new TransportedItemStack(stack.copy())));
+        for (int t = 8; t <= 600; t += 8) {
+            helper.runAfterDelay(t, () -> {
+                SpoutBlockEntity spout = helper.getBlockEntity(SPOUT, SpoutBlockEntity.class);
+                if (spout.tank.getPrimaryHandler().getFluid().getAmount() < 81_000)
+                    spout.tank.getPrimaryHandler().setFluid(new FluidStack(Fluids.WATER, 81_000));
+            });
+        }
+        for (int t : new int[]{60, 150, 300, 600}) {
+            helper.runAfterDelay(t, () -> {
+                DepotBlockEntity depot = helper.getBlockEntity(DEPOT, DepotBlockEntity.class);
+                var box = new net.minecraft.world.phys.AABB(helper.absolutePos(DEPOT)).inflate(5);
+                var drops = helper.getLevel().getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, box)
+                    .stream().map(e -> e.getItem().toString()).toList();
+                LOGGER.info("[FH-TEST] stack rig ({}) at tick {}: depot holds {} | dropped on the ground: {}",
+                    label, t, depot.depotBehaviour.getHeldItemStack(), drops);
+            });
+        }
+        helper.runAfterDelay(610, () -> {
+            ItemStack held = helper.getBlockEntity(DEPOT, DepotBlockEntity.class).depotBehaviour.getHeldItemStack();
+            if (held.getItem() != expectedFinal)
+                throw helper.assertionException(DEPOT, Component.literal(
+                    "a stack of 5 %s was left untouched by the spout; after 610 ticks the depot holds %s, expected a %s"
+                        .formatted(label, held, BuiltInRegistries.ITEM.getKey(expectedFinal))));
+        });
+        helper.runAfterDelay(620, helper::succeed);
+    }
+
     private static void run(net.minecraft.server.MinecraftServer server, net.minecraft.commands.CommandSourceStack source, String command) {
         server.getCommands().performPrefixedCommand(source, command);
     }

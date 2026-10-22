@@ -17,6 +17,7 @@ the fixes and why they exist are in the Javadoc of each class, and the history i
 | 6 | South-facing crafting blueprint with a recipe crashed whoever looked at it | Client | `mixin/client/BlueprintRendererNullRotationMixin` |
 | 7 | Items holding fluid through a single-slot Fabric Transfer storage reported a capacity of 0, so a Spout never filled them (e.g. Steam 'n' Rails paint pitchers) | Both | `mixin/FluidInventoryWrapperCapacityMixin` |
 | 8 | The same inverted comparison for slotted item storages: Create Fly reported a stack limit of 0 | Both | `mixin/InventoryWrapperCapacityMixin` |
+| 9 | A Spout ignored stacks (2 or more) of items that hold fluid through Fabric Transfer, e.g. 5 empty paint pitchers | Server | `mixin/GenericItemFillingStackMixin` |
 
 ## Design rules
 

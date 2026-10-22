@@ -41,6 +41,12 @@ public class MixinAppliedTests {
     }
 
     @GameTest
+    public void spoutStackFixIsApplied(GameTestHelper helper) {
+        assertWoven(helper, com.zurrtum.create.content.fluids.transfer.GenericItemFilling.class, "flyinghotfixes$askAboutOneItem");
+        helper.succeed();
+    }
+
+    @GameTest
     public void itemStackLimitFixIsApplied(GameTestHelper helper) {
         assertWoven(helper, com.zurrtum.create.infrastructure.transfer.InventoryWrapper.class, "flyinghotfixes$fixSlottedStackLimit");
         helper.succeed();
