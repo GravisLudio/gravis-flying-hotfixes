@@ -5,7 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 1.1.0 (unreleased)
+## 1.1.0
+
+Same requirements as 1.0.0 (Minecraft 26.2, Fabric Loader, Fabric API, Java 25, Create Fly). Tested against Create Fly
+26.2-rc-2-6.0.9-1. Three new fixes, found with the paint pitchers of the Create Fly ports of Steam 'n' Rails.
 
 ### Fixed (Create Fly bugs)
 
